@@ -1,37 +1,43 @@
 from datetime import datetime
 
-from django.db.models import F, Count
-from rest_framework import viewsets, mixins, status
+from django.db.models import Count, F
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
 
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 
-from cinema.models import Genre, Actor, CinemaHall, Movie, MovieSession, Order
+from cinema.models import (
+    Actor,
+    CinemaHall,
+    Genre,
+    Movie,
+    MovieSession,
+    Order,
+)
 from cinema.permissions import IsAdminOrIfAuthenticatedReadOnly
 from cinema.serializers import (
-    GenreSerializer,
     ActorSerializer,
     CinemaHallSerializer,
-    MovieSerializer,
-    MovieSessionSerializer,
-    MovieSessionListSerializer,
-    MovieSessionDetailSerializer,
+    GenreSerializer,
     MovieDetailSerializer,
-    MovieListSerializer,
-    OrderSerializer,
-    OrderListSerializer,
     MovieImageSerializer,
+    MovieListSerializer,
+    MovieSerializer,
+    MovieSessionDetailSerializer,
+    MovieSessionListSerializer,
+    MovieSessionSerializer,
+    OrderListSerializer,
+    OrderSerializer,
 )
 
 
 class GenreViewSet(mixins.CreateModelMixin,
                    mixins.ListModelMixin,
-                   GenericViewSet):
+                   viewsets.GenericViewSet):
     """
     ViewSet for managing movie genres.
     Admin users can create, everyone can list.
@@ -44,7 +50,7 @@ class GenreViewSet(mixins.CreateModelMixin,
 
 class ActorViewSet(mixins.CreateModelMixin,
                    mixins.ListModelMixin,
-                   GenericViewSet):
+                   viewsets.GenericViewSet):
     """
     ViewSet for managing actors.
     Admin users can create, everyone can list.
@@ -57,7 +63,7 @@ class ActorViewSet(mixins.CreateModelMixin,
 
 class CinemaHallViewSet(mixins.CreateModelMixin,
                         mixins.ListModelMixin,
-                        GenericViewSet):
+                        viewsets.GenericViewSet):
     """
     ViewSet for managing cinema halls.
     Admin users can create, everyone can list.
@@ -80,15 +86,13 @@ class CinemaHallViewSet(mixins.CreateModelMixin,
             name="genres",
             description="Filter movies by genre IDs (comma separated)",
             required=False,
-            type=int,
-            many=True,
+            type=str,
         ),
         OpenApiParameter(
             name="actors",
             description="Filter movies by actor IDs (comma separated)",
             required=False,
-            type=int,
-            many=True,
+            type=str,
         ),
     ]
 )
@@ -227,7 +231,7 @@ class OrderPagination(PageNumberPagination):
 
 class OrderViewSet(mixins.ListModelMixin,
                    mixins.CreateModelMixin,
-                   GenericViewSet):
+                   viewsets.GenericViewSet):
     """
     ViewSet for orders.
     Supports listing and creating orders for authenticated users.
